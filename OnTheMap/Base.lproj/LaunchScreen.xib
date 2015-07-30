@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="7706" systemVersion="14E46" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="  Copyright (c) 2015 Erwin Santacruz. All rights reserved." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="9" translatesAutoresizingMaskIntoConstraints="NO" id="8ie-xW-0ye">
+                    <rect key="frame" x="20" y="699" width="375" height="17"/>
+                    <fontDescription key="fontDescription" name="HelveticaNeue-Thin" family="Helvetica Neue" pointSize="14"/>
+                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="OnTheMap" textAlignment="center" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" minimumFontSize="18" translatesAutoresizingMaskIntoConstraints="NO" id="kId-c2-rCX">
+                    <rect key="frame" x="20" y="225" width="375" height="43"/>
+                    <fontDescription key="fontDescription" type="boldSystem" pointSize="36"/>
+                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="city-streets-skyline-buildings" translatesAutoresizingMaskIntoConstraints="NO" id="PSF-BE-dAD">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                </imageView>
+                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="udacity" translatesAutoresizingMaskIntoConstraints="NO" id="0Am-ct-iTb">
+                    <rect key="frame" x="143" y="34" width="128" height="128"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="128" id="NRK-zc-Bq1"/>
+                        <constraint firstAttribute="width" constant="128" id="YDT-H2-qWV"/>
+                    </constraints>
+                </imageView>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="OnTheMap" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BoR-jN-6SC">
+                    <rect key="frame" x="131" y="164" width="152" height="42"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="42" id="U3k-HA-yMn"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" name="HelveticaNeue-CondensedBlack" family="Helvetica Neue" pointSize="35"/>
+                    <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                    <nil key="highlightedColor"/>
+                    <variation key="default">
+                        <mask key="constraints">
+                            <exclude reference="U3k-HA-yMn"/>
+                        </mask>
+                    </variation>
+                </label>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="PSF-BE-dAD" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="2Qy-te-dcc"/>
+                <constraint firstItem="kId-c2-rCX" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="bottom" multiplier="1/3" constant="1" id="5cJ-9S-tgC"/>
+                <constraint firstItem="BoR-jN-6SC" firstAttribute="top" secondItem="0Am-ct-iTb" secondAttribute="bottom" constant="2" id="65z-dc-BXT"/>
+                <constraint firstItem="0Am-ct-iTb" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="34" id="69a-Ro-kBi"/>
+                <constraint firstItem="BoR-jN-6SC" firstAttribute="centerX" secondItem="0Am-ct-iTb" secondAttribute="centerX" id="7df-nI-Zvz"/>
+                <constraint firstItem="PSF-BE-dAD" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="95c-bd-51i"/>
+                <constraint firstAttribute="centerX" secondItem="kId-c2-rCX" secondAttribute="centerX" id="Koa-jz-hwk"/>
+                <constraint firstAttribute="bottom" secondItem="8ie-xW-0ye" secondAttribute="bottom" constant="20" id="Kzo-t9-V3l"/>
+                <constraint firstItem="kId-c2-rCX" firstAttribute="top" secondItem="BoR-jN-6SC" secondAttribute="bottom" constant="19" id="MYH-Is-OAn"/>
+                <constraint firstItem="8ie-xW-0ye" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="20" symbolic="YES" id="MfP-vx-nX0"/>
+                <constraint firstItem="0Am-ct-iTb" firstAttribute="centerX" secondItem="BoR-jN-6SC" secondAttribute="centerX" id="Q3g-oo-JEW"/>
+                <constraint firstAttribute="centerX" secondItem="8ie-xW-0ye" secondAttribute="centerX" id="ZEH-qu-HZ9"/>
+                <constraint firstItem="kId-c2-rCX" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="20" symbolic="YES" id="fvb-Df-36g"/>
+                <constraint firstAttribute="trailing" secondItem="PSF-BE-dAD" secondAttribute="trailing" id="mrb-hk-kYw"/>
+                <constraint firstAttribute="bottom" secondItem="PSF-BE-dAD" secondAttribute="bottom" id="puI-vz-Gbg"/>
+                <constraint firstItem="BoR-jN-6SC" firstAttribute="centerX" secondItem="kId-c2-rCX" secondAttribute="centerX" id="xS7-iR-TL9"/>
+                <constraint firstItem="BoR-jN-6SC" firstAttribute="centerX" secondItem="kId-c2-rCX" secondAttribute="centerX" id="zDN-1t-ywb"/>
+            </constraints>
+            <nil key="simulatedStatusBarMetrics"/>
+            <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina55"/>
+            <variation key="default">
+                <mask key="constraints">
+                    <exclude reference="Q3g-oo-JEW"/>
+                    <exclude reference="MYH-Is-OAn"/>
+                    <exclude reference="xS7-iR-TL9"/>
+                </mask>
+            </variation>
+            <point key="canvasLocation" x="548" y="455"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="city-streets-skyline-buildings" width="3823" height="2538"/>
+        <image name="udacity" width="183" height="188"/>
+    </resources>
+</document>
