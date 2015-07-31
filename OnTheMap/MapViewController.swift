@@ -24,6 +24,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
     var activityIndicator: UIActivityIndicatorView!
     var logOutButton: UIBarButtonItem!
     var addButton: UIBarButtonItem!
+    var refreshButton: UIBarButtonItem!
     var overwrite: Bool!
     var pinImg: UIImage?
     var newPin: Bool!
@@ -103,6 +104,10 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
         addButton = tabBarController?.navigationItem.rightBarButtonItem
         addButton?.target = self
         addButton?.action = Selector("addAction:")
+        
+        refreshButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Refresh, target: self, action: Selector("mapsRequest"))
+        
+        tabBarController?.navigationItem.setRightBarButtonItems([addButton,refreshButton], animated: true)
     }
     
     func geocodeAddress(location: String, handler: (CLPlacemark?, NSError?) -> ())
@@ -124,6 +129,11 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
 
     func logoutAction(sender: AnyObject)
     {
+        // Switch back to MapViewController
+        //if tabBarController?.selectedViewController != self {
+        //    tabBarController?.selectedViewController = self
+        //}
+        
         client.LogOut(OTMClient.Methods.Session, stripCharacters: true, completionHandler: { (json, error) -> () in
             if let err = error {
                 println(err.localizedDescription)
@@ -133,7 +143,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
             if let jsonData = json {
                 dispatch_async(dispatch_get_main_queue()) {
                     let vc = self.storyboard?.instantiateViewControllerWithIdentifier("LoginController") as! LoginViewController
-                    self.presentViewController(vc, animated: true, completion: nil)
+                    self.parentViewController?.presentViewController(vc, animated: true, completion: nil)
                 }
             }
         })
@@ -161,12 +171,12 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
             
             if let jsonData = json {
                 var results = jsonData.parsedObject.valueForKey("results") as! NSArray
-                println(jsonData.parsedObject)
+                
                 for i in results {
                     if let key = i["uniqueKey"] as? String where key == self.appDelegate.userDetails["key"] as! String {
-                        println(i["mapString"])
-                        println(i["objectId"])
-                        println(i["mediaURL"])
+                        //println(i["mapString"])
+                        //println(i["objectId"])
+                        //println(i["mediaURL"])
                         self.params["objectId"] = i["objectId"] as? String
                         println("User Already Exists.")
                         exists = true
@@ -228,12 +238,14 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
         params["lastName"] = lastName
         params["mapString"] = location
         
-        // Activity
+        // Indicate Activity
         activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.WhiteLarge)
         activityIndicator.center = CGPointMake(CGRectGetMidX(self.view.frame), CGRectGetMidY(view.frame))
         activityIndicator.hidesWhenStopped = true
+        
         self.view.addSubview(activityIndicator)
         activityIndicator.startAnimating()
+        
         mapView.alpha = 0.5
         
         geocodeAddress(location, handler: { (placemark, error) -> () in
@@ -255,8 +267,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
             // Create annotation from location
             if let placemark = placemark {
                 var coordinates:CLLocationCoordinate2D = placemark.location.coordinate
-                println(coordinates.latitude)
-                println(coordinates.longitude)
                 self.pin = MapPin(coordinate: coordinates, title: location, subtitle: "")
                 self.mapView.addAnnotation(self.pin)
                 self.mapView.centerCoordinate = coordinates
@@ -291,8 +301,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
         params["latitude"] = pin.coordinate.latitude
         params["longitude"] = pin.coordinate.longitude
         
-        println(params)
-        
         // We are going to overwrite existing info
         if overwrite! {
             var objectId = params["objectId"] as! String
@@ -317,13 +325,14 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
                 }
                 
                 if let jsonData = json {
+                    println("Data has been updated.")
                     println(jsonData.parsedObject)
                     self.mapsRequest()
                     self.resetInfoView()
                 }
             }
         }
-        // If we are putting new info on the server
+        // Putting new info on the server
         else {
             var uniqueKeyString = appDelegate.userDetails["key"] as! String
             var stringmethod = "\(OTMClient.Methods.Student_Location_User)\(uniqueKeyString)%22%7D"
@@ -344,7 +353,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
     
     func mapsRequest()
     {
-        // Get the all student locations
+        // Get all student locations
         client.GetParse(OTMClient.Methods.Student_Location, extra: "limit=100", stripCharacters: false, completionHandler: { (json, error) -> () in
             if let err = error {
                 dispatch_async(dispatch_get_main_queue()) {
@@ -360,7 +369,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
             }
             
             if let jsonData = json {
-                //println(jsonData.parsedObject)
                 self.students = Students(students: OTMClient.MapJSONKeys(jsonData)!)
                 self.loadData()
             }
@@ -372,15 +380,15 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
         
         dispatch_async(dispatch_get_main_queue()) {
             self.view.alpha = 1.0
+            
             var annotations = self.students.getMKAnnotation()
+            self.mapView.removeAnnotations(annotations)
             self.mapView.addAnnotations(annotations)
             self.mapView.showAnnotations(annotations, animated: true)
             
             // Check if we are overwriting or creating new annotation
             if self.overwrite! || self.newPin! {
                 var coordinates = CLLocationCoordinate2D(latitude: self.params["latitude"] as! Double, longitude: self.params["longitude"] as! Double)
-                println(coordinates.latitude)
-                println(coordinates.longitude)
                 var span = MKCoordinateSpanMake(5.0, 5.0)
                 var region = MKCoordinateRegionMake(coordinates, span)
                 self.mapView.centerCoordinate = coordinates
@@ -395,7 +403,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
                 var mapAnnotations = self.mapView.annotations as! [MKAnnotation]
                 for userAnnotation in mapAnnotations {
                     if (userAnnotation.title == fullName) && (userAnnotation.coordinate.latitude == coordinates.latitude) && (userAnnotation.coordinate.latitude == coordinates.latitude){
-                        println("IS EQUAL")
                         self.mapView.selectAnnotation(userAnnotation as MKAnnotation, animated: true)
                         break
                     }
@@ -462,6 +469,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
     func annotionViewTapped(recognizer: UITapGestureRecognizer)
     {
         // Can't get this to work!
+        
         /*
         if let view = recognizer.view as? MKAnnotationView {
             var mediaURL = NSURL(string: view.annotation.subtitle!)

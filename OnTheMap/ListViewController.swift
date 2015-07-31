@@ -20,33 +20,28 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         super.viewDidLoad()
         
         client = OTMClient.sharedInstance()
+        getParseData()
+
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
         
+        getParseData()
+    }
+    
+    func getParseData()
+    {
         client.GetParse(OTMClient.Methods.Student_Location, extra: nil, stripCharacters: false, completionHandler: { (json, error) -> () in
             if let err = error {
-                println("\(err.localizedDescription)")
+                self.errorAlert(err.localizedDescription)
+
                 return
             }
             else {
                 if let jsonData = json {
                     self.students = Students(students: OTMClient.MapJSONKeys(jsonData)!)
                     self.loadData()
-                }
-            }
-        })
-    }
-    
-    func logoutAction(sender: AnyObject)
-    {
-        client.LogOut(OTMClient.Methods.Session, stripCharacters: true, completionHandler: { (json, error) -> () in
-            if let err = error {
-                println(err.localizedDescription)
-                return
-            }
-            
-            if let jsonData = json {
-                dispatch_async(dispatch_get_main_queue()) {
-                    let vc = self.storyboard?.instantiateViewControllerWithIdentifier("LoginController") as! LoginViewController
-                    self.presentViewController(vc, animated: true, completion: nil)
                 }
             }
         })
@@ -114,8 +109,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
         else {
             errorAlert("Please enter a valid URL link. ( e.g. http://udacity.com )")
             
-            /*
+            
             // Trying to see if I could create a valid url by adding http://
+            /*
             var s = "http://\(student.mediaURL)"
             var u = NSURL(string: s)
             
