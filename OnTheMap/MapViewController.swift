@@ -12,6 +12,7 @@ import MapKit
 class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegate, CLLocationManagerDelegate {
     let annotationIdentifier = "ANNOT"
     let animationDuration = 0.4
+    let limit = "100"
     
     var client: OTMClient!
     var students: Students!
@@ -82,8 +83,10 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
     
     func configureUI()
     {
-        // Tint the tabbar icons
-        tabBarController?.tabBar.tintColor = UIColor(red: 235.0/255, green: 175.0/255, blue: 45.0/255, alpha: 1.0)
+        // Tint the tabbar and icons
+        //tabBarController?.tabBar.tintColor = UIColor(red: 235.0/255, green: 175.0/255, blue: 45.0/255, alpha: 1.0)
+        tabBarController?.tabBar.tintColor = UIColor.whiteColor()
+        tabBarController?.tabBar.barTintColor = UIColor(red: 235.0/255, green: 175.0/255, blue: 45.0/255, alpha: 1.0)
         
         userInfoViewConstraint.constant = 0.0
         overwrite = false
@@ -96,7 +99,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
         mediaURLTextField.enabled = false
         mediaURLTextField.hidden = true
         
-        // Set UIBar items
+        // Set navagation items
         logOutButton = tabBarController?.navigationItem.leftBarButtonItem
         logOutButton?.target = self
         logOutButton?.action = Selector("logoutAction:")
@@ -129,11 +132,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
 
     func logoutAction(sender: AnyObject)
     {
-        // Switch back to MapViewController
-        //if tabBarController?.selectedViewController != self {
-        //    tabBarController?.selectedViewController = self
-        //}
-        
         client.LogOut(OTMClient.Methods.Session, stripCharacters: true, completionHandler: { (json, error) -> () in
             if let err = error {
                 println(err.localizedDescription)
@@ -157,9 +155,8 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
         }
         
         var uniqueKeyString = appDelegate.userDetails["key"] as! String
-        var stringmethod = "\(OTMClient.Methods.Student_Location_User)\(uniqueKeyString)%22%7D"
         
-        client.GetParseUser(stringmethod, extra: nil, stripCharacters: false) { (json, error) -> ()  in
+        client.GetParseUser(OTMClient.Methods.Student_Location, extra: uniqueKeyString, stripCharacters: false) { (json, error) -> ()  in
             if let err = error {
                 println(err.localizedDescription)
                 return
@@ -174,9 +171,14 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
                 
                 for i in results {
                     if let key = i["uniqueKey"] as? String where key == self.appDelegate.userDetails["key"] as! String {
-                        //println(i["mapString"])
-                        //println(i["objectId"])
-                        //println(i["mediaURL"])
+                        
+                        //Debug
+                        /*
+                        println(i["mapString"])
+                        println(i["objectId"])
+                        println(i["mediaURL"])
+                        */
+                        
                         self.params["objectId"] = i["objectId"] as? String
                         println("User Already Exists.")
                         exists = true
@@ -200,6 +202,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
                     // No pins so a new one will be created
                     self.newPin = true
                     
+                    // UI animation for user info
                     dispatch_async(dispatch_get_main_queue()) {
                     UIView.animateWithDuration(self.animationDuration, delay: 0, options: .CurveEaseOut, animations: {
                         self.userInfoViewConstraint.constant += -212.0
@@ -267,11 +270,16 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
             // Create annotation from location
             if let placemark = placemark {
                 var coordinates:CLLocationCoordinate2D = placemark.location.coordinate
+                
+                //println("Creating new pin")
                 self.pin = MapPin(coordinate: coordinates, title: location, subtitle: "")
                 self.mapView.addAnnotation(self.pin)
                 self.mapView.centerCoordinate = coordinates
                 self.mapView.selectAnnotation(self.pin, animated: true)
                 self.mapView.setRegion(MKCoordinateRegionMake(CLLocationCoordinate2D(latitude: coordinates.latitude, longitude: coordinates.longitude), MKCoordinateSpanMake(15.0, 15.0)), animated: true)
+                
+                self.params["latitude"] = self.pin.coordinate.latitude
+                self.params["longitude"] = self.pin.coordinate.longitude
             }
             
             dispatch_async(dispatch_get_main_queue(), {
@@ -296,22 +304,20 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
     
     func submitAction(sender: AnyObject)
     {
+        mapView.removeAnnotations(mapView.annotations)
+        
         params["mediaURL"] = mediaURLTextField.text!
         params["uniqueKey"] = appDelegate.userDetails["key"]
-        params["latitude"] = pin.coordinate.latitude
-        params["longitude"] = pin.coordinate.longitude
         
         // We are going to overwrite existing info
         if overwrite! {
             var objectId = params["objectId"] as! String
-            var stringmethod = "\(OTMClient.Methods.Student_Location_Put)\(objectId)"
+            var stringmethod = OTMClient.Methods.Student_Location + objectId
             
             view.alpha = 0.5
             
-            client.PutParseUser(stringmethod, data: params, stripCharacters: false) { (json, error) -> ()  in
+            client.PutParseUser(OTMClient.Methods.Student_Location, id: objectId, data: params, stripCharacters: false) { (json, error) -> ()  in
                 if let err = error {
-                    println(err.localizedDescription)
-                    
                     dispatch_async(dispatch_get_main_queue()) {
                         self.retryAlert(err.localizedDescription, completionHandler: { (bool) -> () in
                             if bool {
@@ -326,21 +332,27 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
                 
                 if let jsonData = json {
                     println("Data has been updated.")
-                    println(jsonData.parsedObject)
                     self.mapsRequest()
                     self.resetInfoView()
                 }
             }
         }
-        // Putting new info on the server
+        // Posting new info on the server
         else {
             var uniqueKeyString = appDelegate.userDetails["key"] as! String
-            var stringmethod = "\(OTMClient.Methods.Student_Location_User)\(uniqueKeyString)%22%7D"
             
-            self.client.PostParse(OTMClient.Methods.Student_Location_Post, data: self.params, stripCharacters: false) { (json, error) -> () in
+            self.client.PostParse(OTMClient.Methods.Student_Location, data: self.params, stripCharacters: false) { (json, error) -> () in
                 if let err = error {
-                    println(err.localizedDescription)
-                    return
+                    dispatch_async(dispatch_get_main_queue()) {
+                        self.retryAlert(err.localizedDescription, completionHandler: { (bool) -> () in
+                            if bool {
+                                self.submitAction(self)
+                            }
+                            else {
+                                return
+                            }
+                        })
+                    }
                 }
                 
                 if let jsonData = json {
@@ -354,7 +366,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
     func mapsRequest()
     {
         // Get all student locations
-        client.GetParse(OTMClient.Methods.Student_Location, extra: "limit=100", stripCharacters: false, completionHandler: { (json, error) -> () in
+        client.GetParse(OTMClient.Methods.Student_Location, limit: limit, stripCharacters: false, completionHandler: { (json, error) -> () in
             if let err = error {
                 dispatch_async(dispatch_get_main_queue()) {
                     self.retryAlert(err.localizedDescription, completionHandler: { (bool) -> () in
@@ -370,6 +382,18 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
             
             if let jsonData = json {
                 self.students = Students(students: OTMClient.MapJSONKeys(jsonData)!)
+                
+                // Debug
+                /*
+                for i in self.students.students! {
+                    if i.firstName == "Erwin" {
+                        println(i.mapString)
+                        println(i.latitude)
+                        println(i.longitude)
+                    }
+                }
+                */
+                
                 self.loadData()
             }
         })
@@ -377,23 +401,24 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
     
     func loadData()
     {
-        
         dispatch_async(dispatch_get_main_queue()) {
             self.view.alpha = 1.0
             
             var annotations = self.students.getMKAnnotation()
             self.mapView.removeAnnotations(annotations)
+            
             self.mapView.addAnnotations(annotations)
             self.mapView.showAnnotations(annotations, animated: true)
             
             // Check if we are overwriting or creating new annotation
             if self.overwrite! || self.newPin! {
+                println("Overwriting or creating new pin")
                 var coordinates = CLLocationCoordinate2D(latitude: self.params["latitude"] as! Double, longitude: self.params["longitude"] as! Double)
+                
                 var span = MKCoordinateSpanMake(5.0, 5.0)
                 var region = MKCoordinateRegionMake(coordinates, span)
                 self.mapView.centerCoordinate = coordinates
                 self.mapView.setRegion(region, animated: true)
-                self.mapView.removeAnnotation(self.pin)
                 
                 var firstName = self.appDelegate.userDetails["firstName"] as! String
                 var lastName = self.appDelegate.userDetails["lastName"] as! String
@@ -409,6 +434,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
                 }
             }
             else {
+                println("Geocoding location")
                 self.geocodeAddress("USA"){ (placemark, error) -> () in
                     if let err = error {
                         println(err.localizedDescription)
@@ -466,19 +492,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
         }
     }
     
-    func annotionViewTapped(recognizer: UITapGestureRecognizer)
-    {
-        // Can't get this to work!
-        
-        /*
-        if let view = recognizer.view as? MKAnnotationView {
-            var mediaURL = NSURL(string: view.annotation.subtitle!)
-            UIApplication.sharedApplication().openURL(mediaURL!)
-
-        }
-        */
-    }
-    
     func screenTapped(recognizer: UITapGestureRecognizer)
     {
         dismissKeyboard()
@@ -488,6 +501,8 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
     {
         view.endEditing(true)
     }
+    
+    // MARK: Alerts
     
     func retryAlert(error:String?, completionHandler:(Bool) -> ())
     {
@@ -559,6 +574,9 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
             view.rightCalloutAccessoryView = UIButton.buttonWithType(.DetailDisclosure) as! UIView
 
         }
+        
+        // Add gesture to allow tap on callout view
+        annotationTapGesture = UITapGestureRecognizer(target: self, action: Selector("annotionViewTapped:"))
 
         return view
     }
@@ -585,7 +603,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
     }
     
     func mapViewDidFailLoadingMap(mapView: MKMapView!, withError error: NSError!) {
-        var errorString = "Maps failed to load. \(error.localizedDescription)"
+        var errorString = "Map failed to load. \(error.localizedDescription)"
         retryAlert(errorString, completionHandler: { (bool) -> () in
             if bool {
                 self.mapsRequest()
@@ -595,8 +613,38 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
     
     func mapView(mapView: MKMapView!, didSelectAnnotationView view: MKAnnotationView!) {
         // Add gesture to allow tap on callout view
-        //annotationTapGesture = UITapGestureRecognizer(target: self, action: Selector("annotionViewTapped:"))
-        //view.addGestureRecognizer(annotationTapGesture)
+        view.addGestureRecognizer(annotationTapGesture)
+    }
+    
+    func annotionViewTapped(recognizer: UITapGestureRecognizer)
+    {
+        // Check to see if media URL is in a valid format
+        if let view = recognizer.view as? MKAnnotationView {
+            let subString = view.annotation.subtitle! as NSString
+            
+            if subString.containsString("://") {
+                var mediaURL = NSURL(string: subString as String)
+                
+                if let url = mediaURL {
+                    UIApplication.sharedApplication().openURL(url)
+                }
+                else {
+                    errorAlert("Sorry, could not load the specified link.")
+                }
+            }
+            else {
+                errorAlert("Please enter a valid URL link. ( e.g. http://udacity.com )")
+            }
+        }
+        
+        /*
+        // Debug
+        if let view = recognizer.view as? MKAnnotationView {
+            println(view.annotation.subtitle)
+            var mediaURL = NSURL(string: view.annotation.subtitle!)
+            UIApplication.sharedApplication().openURL(mediaURL!)
+        }
+        */
     }
     
 }

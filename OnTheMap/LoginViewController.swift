@@ -5,28 +5,35 @@
 //  Created by Erwin Santacruz on 7/2/15.
 //  Copyright (c) 2015 Erwin Santacruz. All rights reserved.
 //
+//  Login image by Wojtek Witkowski under Creative Commons http://www.pexels.com/photo/city-streets-skyline-buildings-1329/
 
 import UIKit
 
-class LoginViewController: UIViewController {
+class LoginViewController: UIViewController, UITextFieldDelegate {
     
     var client:OTMClient!
     var appDelegate: AppDelegate!
     var data: [String:AnyObject]?
     var activityIndicator: UIActivityIndicatorView!
+    var tapGesture: UITapGestureRecognizer!
+    
     
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var loginButton: UIButton!
     @IBOutlet weak var errorLabel: UILabel!
-    //@IBOutlet weak var bgImage: UIImageView!
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
         client = OTMClient.sharedInstance()
+        
+        tapGesture = UITapGestureRecognizer(target: self, action: Selector("screenTapped:"))
+        view.addGestureRecognizer(tapGesture)
+        
+        emailTextField.delegate = self
+        passwordTextField.delegate = self
     }
 
     override func viewWillAppear(animated: Bool) {
@@ -38,8 +45,7 @@ class LoginViewController: UIViewController {
     
     @IBAction func loginAction()
     {
-        //data = ["udacity":["username": emailTextField.text, "password": passwordTextField.text]]
-        data = ["udacity":["username": "hi@990adjustments.com", "password": "just-l3arn-1t-uda"]]
+        data = ["udacity":["username": emailTextField.text, "password": passwordTextField.text]]
 
         activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.WhiteLarge)
         activityIndicator.center = CGPointMake(CGRectGetMidX(view.frame), CGRectGetMidY(view.frame) - 100)
@@ -106,6 +112,21 @@ class LoginViewController: UIViewController {
         alertController.addAction(retryAction)
         presentViewController(alertController, animated: true, completion: nil)
 
+    }
+    
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
+    func screenTapped(recognizer: UITapGestureRecognizer)
+    {
+        dismissKeyboard()
+    }
+    
+    func dismissKeyboard()
+    {
+        view.endEditing(true)
     }
 
 }

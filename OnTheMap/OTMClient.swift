@@ -21,9 +21,18 @@ class OTMClient: NSObject {
         super.init()
     }
     
-    func GetParse(url: String, extra: String?, stripCharacters: Bool, completionHandler: (JSON?, NSError?) -> ())
+    func GetParse(url: String, limit: String?, stripCharacters: Bool, completionHandler: (JSON?, NSError?) -> ())
     {
-        let url = NSURL(string: url)
+        // Limit of students retrieved
+        var requestMethod: String?
+        if let limit = limit {
+            requestMethod = url + "?limit=" + limit
+        }
+        else {
+            requestMethod = url
+        }
+
+        let url = NSURL(string: requestMethod!)
         
         var request = NSMutableURLRequest(URL: url!)
         request.addValue(OTMClient.Parse.Application_id, forHTTPHeaderField: "X-Parse-Application-Id")
@@ -35,7 +44,16 @@ class OTMClient: NSObject {
     
     func GetParseUser(url: String, extra: String?, stripCharacters: Bool, completionHandler: (JSON?, NSError?) -> ())
     {
-        let url = NSURL(string: url)
+        // Get unique id
+        var requestMethod: String?
+        if let extra = extra {
+            requestMethod = url + "?where=%7B%22uniqueKey%22%3A%22" + extra + "%22%7D"
+        }
+        else {
+            requestMethod = url
+        }
+        
+        let url = NSURL(string: requestMethod!)
         
         var request = NSMutableURLRequest(URL: url!)
         request.addValue(OTMClient.Parse.Application_id, forHTTPHeaderField: "X-Parse-Application-Id")
@@ -45,9 +63,19 @@ class OTMClient: NSObject {
         task.resume()
     }
     
-    func PutParseUser(url: String, data: [String:AnyObject], stripCharacters: Bool, completionHandler: (JSON?, NSError?) -> ())
+    func PutParseUser(url: String, id: String?, data: [String:AnyObject], stripCharacters: Bool, completionHandler: (JSON?, NSError?) -> ())
     {
-        let url = NSURL(string: url)
+        // Get object id
+        
+        var requestMethod: String?
+        if let id = id {
+            requestMethod = url + "/" + id
+        }
+        else {
+            requestMethod = url
+        }
+        
+        let url = NSURL(string: requestMethod!)
         
         var request = NSMutableURLRequest(URL: url!)
         request.HTTPMethod = "PUT"
@@ -168,7 +196,7 @@ class OTMClient: NSObject {
             if let key = jsonData[OTMClient.ResponseKeys.Account]?[OTMClient.ResponseKeys.Key]?.stringValue {
                 var method = "\(OTMClient.Methods.UserId)\(key)"
 
-                self.GetParse(method, extra: nil, stripCharacters: true) { (json, error) -> () in
+                self.GetParse(method, limit: nil, stripCharacters: true) { (json, error) -> () in
                     if let jdata = json {
                         self.appDelegate.userDetails["key"] = jdata["user"]?["key"]?.stringValue
                         self.appDelegate.userDetails["lastName"] = jdata["user"]?["last_name"]?.stringValue

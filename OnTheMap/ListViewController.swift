@@ -10,6 +10,7 @@ import UIKit
 
 class ListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     let cellIdentifier = "ListViewTableCell"
+    let limit = "100"
     
     var students: Students!
     var client: OTMClient!
@@ -32,10 +33,9 @@ class ListViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     func getParseData()
     {
-        client.GetParse(OTMClient.Methods.Student_Location, extra: nil, stripCharacters: false, completionHandler: { (json, error) -> () in
+        client.GetParse(OTMClient.Methods.Student_Location, limit: limit, stripCharacters: false, completionHandler: { (json, error) -> () in
             if let err = error {
                 self.errorAlert(err.localizedDescription)
-
                 return
             }
             else {

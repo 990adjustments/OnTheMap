@@ -10,11 +10,8 @@ extension OTMClient {
     
     struct Methods {
         static let Session = "https://www.udacity.com/api/session"
-        static let Student_Location = "https://api.parse.com/1/classes/StudentLocation?limit=100"
-        static let Student_Location_Post = "https://api.parse.com/1/classes/StudentLocation?"
-        static let Student_Location_Put = "https://api.parse.com/1/classes/StudentLocation/"
-        static let Student_Location_User = "https://api.parse.com/1/classes/StudentLocation?where=%7B%22uniqueKey%22%3A%22"
         static let UserId = "https://www.udacity.com/api/users/"
+        static let Student_Location = "https://api.parse.com/1/classes/StudentLocation"
     }
     
     struct ResponseKeys {

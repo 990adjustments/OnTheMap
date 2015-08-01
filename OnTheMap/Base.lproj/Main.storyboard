@@ -29,7 +29,7 @@
                                     <constraint firstAttribute="height" constant="44" id="blS-x6-2qX"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
+                                <textInputTraits key="textInputTraits" autocorrectionType="no" secureTextEntry="YES"/>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ULf-Kk-B3F">
                                 <rect key="frame" x="44" y="423" width="327" height="44"/>
@@ -61,7 +61,7 @@
                                     <constraint firstAttribute="height" constant="44" id="aXG-DS-obq"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits"/>
+                                <textInputTraits key="textInputTraits" autocorrectionType="no"/>
                             </textField>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="udacity" translatesAutoresizingMaskIntoConstraints="NO" id="ml6-Sk-hX5">
                                 <rect key="frame" x="143" y="34" width="128" height="128"/>
@@ -107,7 +107,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-314" y="360"/>
+            <point key="canvasLocation" x="-92" y="360"/>
         </scene>
         <!--listView-->
         <scene sceneID="Jtd-CG-iDV">
@@ -168,7 +168,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="xK4-hV-gHT" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1995" y="923"/>
+            <point key="canvasLocation" x="1995" y="787"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="jEI-Xk-CwM">
@@ -186,7 +186,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Mc6-RJ-zX7" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="375" y="360"/>
+            <point key="canvasLocation" x="477" y="360"/>
         </scene>
         <!--mapView-->
         <scene sceneID="rOE-F8-3HY">
@@ -296,7 +296,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MyA-bH-xXF" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1995" y="29"/>
+            <point key="canvasLocation" x="1995" y="-43"/>
         </scene>
         <!--On The Map-->
         <scene sceneID="vD4-e7-dR1">
