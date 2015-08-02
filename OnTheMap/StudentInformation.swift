@@ -31,7 +31,7 @@ struct StudentInformation {
     // Return an array of StudentInformation structs
     static func studentsFromResults(results: NSArray) -> [StudentInformation] {
         var students = [StudentInformation]()
-        
+
         for student in results {
             var info = StudentInformation(dictionary: student as! [String : AnyObject])
             students.append(info)

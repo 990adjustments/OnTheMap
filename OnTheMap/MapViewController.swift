@@ -153,7 +153,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
         if tabBarController?.selectedIndex == 1 {
             tabBarController?.selectedIndex = 0
         }
-        
+        //TODO: User not in results error handling
         var uniqueKeyString = appDelegate.userDetails["key"] as! String
         
         client.GetParseUser(OTMClient.Methods.Student_Location, extra: uniqueKeyString, stripCharacters: false) { (json, error) -> ()  in
@@ -304,6 +304,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
     
     func submitAction(sender: AnyObject)
     {
+        // Clear all pins on the map
         mapView.removeAnnotations(mapView.annotations)
         
         params["mediaURL"] = mediaURLTextField.text!
@@ -403,7 +404,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, UITextFieldDelegat
     {
         dispatch_async(dispatch_get_main_queue()) {
             self.view.alpha = 1.0
-            
+
             var annotations = self.students.getMKAnnotation()
             self.mapView.removeAnnotations(annotations)
             

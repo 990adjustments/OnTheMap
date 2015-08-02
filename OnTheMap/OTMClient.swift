@@ -26,7 +26,7 @@ class OTMClient: NSObject {
         // Limit of students retrieved
         var requestMethod: String?
         if let limit = limit {
-            requestMethod = url + "?limit=" + limit
+            requestMethod = "https://api.parse.com/1/classes/StudentLocation?order=-updatedAt&limit=" + limit
         }
         else {
             requestMethod = url
